@@ -3,55 +3,49 @@ import { Box, Button, FormControl, FormLabel, Icon, Menu, MenuButton, MenuItem, 
 import { RiArrowDownSLine } from 'react-icons/ri'
 
 import SelectSectionButton from './SelectSectionButton'
+import internal from 'stream';
+
 
 interface SelectSectionProps {
-    name: string;
-    label?: string;
+    id: string;
     data: any;
-    setData: ReactNode;
+    setFunction: Function;
+    setFunctionParameter: number;
+    setYear: number;
+    name?: string;
     maxWd?: string;
-    initialMonthValue?: string
-    initialYearValue: number;
-    currentSelectedMonth: Function;
 }
 
-export default function SelectSection({ name, label, data, setData, maxWd, initialMonthValue, initialYearValue, currentSelectedMonth, ...rest }: SelectSectionProps) {
 
-    const [selectedMonth, setSelectedMonth] = useState(initialMonthValue);
-    const [selectedYear, setSelectedYear] = useState(initialYearValue);
-
-    function SetChangeMonth(index) {
-        currentSelectedMonth(index);
-    }
-
+export default function SelectSection({ name, id, data, setFunction, setFunctionParameter, setYear, maxWd, ...rest }: SelectSectionProps) {
 
     return (
         <FormControl {...rest} >
-            {!!label && <FormLabel htmlFor={name}>{label}</FormLabel>}
             <Menu autoSelect={false} >
                 <MenuButton
-                    name={name}
-                    id={name}
                     as={Button}
                     variant="filled"
                     bgColor="#152233"
+                    border="1px solid #333"
                     cursor="pointer"
+                    fontWeight="normal"
                     size="lg"
                     w="100%"
-                    fontWeight="normal"
                     maxW={maxWd ? maxWd : "100%"}
                     display="block"
                     margin="0 auto"
+                    _hover={{ bg: "#304466" }}
+                    _focus={{ boxShadow: "none", }}
                 >
                     <Box display="flex" justifyContent="center">
-                        <Text>{selectedMonth} {initialYearValue}</Text>
+                        {setFunctionParameter != null && <Text>{data[setFunctionParameter]} {setYear}</Text>}
                         <Icon as={RiArrowDownSLine} fontSize={20} ml="2" />
                     </Box>
                 </MenuButton>
 
-                <MenuList minWidth='240px' py="0" >
+                <MenuList p="0" maxW="70px">
 
-                    <MenuOptionGroup defaultValue="" >
+                    <MenuOptionGroup >
                         {
                             data?.map((x, i) => (
                                 <MenuItem
@@ -59,10 +53,10 @@ export default function SelectSection({ name, label, data, setData, maxWd, initi
                                     key={x.name}
                                 >
                                     <SelectSectionButton
-                                        name={x}
+                                        currentName={x}
                                         value={i}
                                         icon={x.icon}
-                                        onClick={() => SetChangeMonth(i)}
+                                        onClick={() => setFunction(i)}
                                     />
                                 </MenuItem>
                             ))

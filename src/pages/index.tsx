@@ -1,53 +1,96 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Flex, HStack, Icon, Input, Table, Tbody, Td, Th, Thead, Tr, VStack } from "@chakra-ui/react";
-import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from 'react-icons/md'
+import { Box, Flex, Table, Tbody, Td, Thead, Tr } from "@chakra-ui/react";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md'
 
 import SelectSection from '../Components/Select'
+import ArrowButton from "../Components/ArrowButton";
 
-export default function Home() {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-  const currentMonthDay = new Date().getDate();
-  const currentWeekDay = new Date().getDay();
+interface DatePickerInterface {
+  
+}
 
-  const totalMonthDays = 32 - new Date(currentYear, currentMonth, 32).getDate() // explicação da lógica no fim do arquivo 
-  const firstWeekDay = new Date(currentYear, currentMonth, 1).getDay();
+export default function DatePicker() {
+  const [currentYear] = useState(new Date().getFullYear());
+  const [currentMonth] = useState(new Date().getMonth());
+
+  const [selectedYear, setSelectedYear] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState(0);
+  const [selectedMonthDay, setSelectedMonthDay] = useState(0);
+  const [selectedWeekDay, setSelectedWeekDay] = useState(0);
+
+  const [monthDays, setMonthDays] = useState([]);
+  const totalMonthDays = 32 - new Date(selectedYear, selectedMonth, 32).getDate() // explicação da lógica no fim do arquivo 
+  const weekDayOfTheFirstMonthDay = new Date(selectedYear, selectedMonth, 1).getDay();
 
   const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setemro", "Outubro", "Novembro", "Dezembro"]
   const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
   const shortMonths = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [selectedMonth, setSelectedMonth] = useState(months[currentMonth]);
-  const [selectedDay, setSelectedDay] = useState(currentMonthDay);
+  const [sday, setSday] = useState();
 
-  const [monthDays, setMonthDays] = useState([]);
-
-  console.log(selectedMonth);
-
+  console.log(sday);
+  
 
   useEffect(() => {
-    GetDate()
+    setSelectedYear(new Date().getFullYear())
+    setSelectedMonth(new Date().getMonth())
+    setSelectedMonthDay(new Date().getDate())
+    setSelectedWeekDay(new Date().getDay())
   }, [])
 
-  function GetDate() {
-    let startmonthDays = [];
+  useEffect(() => {
+    SetMonthDaysInWeekDay()
+  }, [selectedMonth])
 
-    for (let wDay = 0; wDay < firstWeekDay; wDay++) {
-      startmonthDays.push(null)
+
+  function SetMonthDaysInWeekDay() {
+    let days = [];
+
+    for (let wDay = 0; wDay < weekDayOfTheFirstMonthDay; wDay++) {
+      days.push(null)
     }
     for (let day = 1; day <= totalMonthDays; day++) {
-      startmonthDays.push(day)
+      days.push(day)
     }
-    setMonthDays(startmonthDays);
+    setMonthDays(days);
   }
+
+  function SelectHandler(monthIndex) {
+    setSelectedMonth(monthIndex);
+  }
+
+  function ArrowButtonHandler(x) {
+    if (x === "Left") {
+      if (selectedMonth <= 0) {
+        setSelectedYear(selectedYear - 1);
+        setSelectedMonth(11);
+      } else {
+        setSelectedMonth(selectedMonth - 1)
+      }
+    }
+
+    if (x === "Right") {
+      if (selectedMonth >= 11) {
+        setSelectedYear(selectedYear + 1);
+        setSelectedMonth(0);
+      } else {
+        setSelectedMonth(selectedMonth + 1)
+      }
+    }
+
+  }
+
+  // falta poder selecionar o ano e pegar a data no formato correto
+
 
   return (
     <Flex
+      id="x"
       w="100vw"
       h="100vh"
       align="center"
       justify="center"
+      fontFamily="sans-serif"
     >
       <Box border="1px solid gray" borderRadius="15px" bg="#ddd" >
         <Box p="0" pb="3" >
@@ -61,35 +104,30 @@ export default function Home() {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Button
-              p="0"
-              h="50px"
-              w="50px"
-              bg="#333"
-              border="2px solid #aaa"
-            >
-              <Icon as={MdKeyboardArrowLeft} fontSize={35} />
-            </Button>
-
-            <SelectSection
-              name="selectDate"
-              maxWd="200px"
-              data={months}
-              currentSelectedMonth={setSelectedMonth}
-              initialMonthValue={selectedMonth}
-              initialYearValue={selectedYear}
+            <ArrowButton
+              id="ArrowLeft"
+              icon={MdKeyboardArrowLeft}
+              setFunction={ArrowButtonHandler}
+              setFunctionParameter="Left"
             />
 
-            <Button
-              p="0"
-              h="50px"
-              w="50px"
-              bg="#333"
-              border="2px solid #aaa"
-            >
-              <Icon as={MdKeyboardArrowRight} fontSize={35} />
-            </Button>
+            <SelectSection
+              id="SelectMonth"
+              data={months}
+              maxWd="200px"
+              setFunction={SelectHandler}
+              setFunctionParameter={selectedMonth}
+              setYear={selectedYear}
+            />
+
+            <ArrowButton
+              id="ArrowLeft"
+              icon={MdKeyboardArrowRight}
+              setFunction={ArrowButtonHandler}
+              setFunctionParameter="Right"
+            />
           </Box>
+
           <Box p="3" mt="2" pb="0" bg="#ddd" color="#111" >
             <Table
               variant="unstyled"
@@ -97,10 +135,12 @@ export default function Home() {
               <Thead cursor="default" >
                 <Tr>
                   {
-                    weekDays.map((x) => (
+                    weekDays.map((x, i) => (
                       <Td
+                        key={i}
                         p="1"
                         textAlign="center"
+                      // color={i === currentWeekDay? "#304466" : ""}
                       >
                         <strong>{x}</strong>
                       </Td>
@@ -113,32 +153,43 @@ export default function Home() {
                   monthDays.map((x, i) => (
                     x === null ?
                       <Td
+                        key={i}
                         px="4"
                       >
                       </Td>
                       :
                       i % 7 !== 0 ?
                         <Td
+                          key={i}
                           _hover={{
-                            bgColor: "#152233",
+                            bgColor: "#304466",
                             borderRadius: "7px",
                             color: "#ddd",
                           }}
                           textAlign="center"
                           px="4"
+                          bg={currentYear === selectedYear && currentMonth === selectedMonth && selectedMonthDay === x ? "#152233" : ""}
+                          color={selectedMonthDay === x ? "#ddd" : ""}
+                          borderRadius={selectedMonthDay === x ? "7px" : ""}
                         >
                           {x}
                         </Td>
                         :
                         <>
                           <Tr></Tr>
-                          <Td _hover={{
-                            bgColor: "#152233",
-                            borderRadius: "7px",
-                            color: "#ddd",
-                          }}
+                          <Td
+                            key={i}
+                            _hover={{
+                              bgColor: "#304466",
+                              borderRadius: "7px",
+                              color: "#ddd",
+                            }}
                             textAlign="center"
                             px="4"
+                            bg={currentYear === selectedYear && currentMonth === selectedMonth && selectedMonthDay === x ? "#152233" : ""}
+                            color={selectedMonthDay === x ? "#ddd" : ""}
+                            borderRadius={selectedMonthDay === x ? "7px" : ""}
+                            onClick={() => setSday(x)}
                           >
                             {x}
                           </Td>
@@ -156,10 +207,10 @@ export default function Home() {
 }
 /*      
     explicação:
-    na função new Date() passamos na seguinte ordem (ano, mes[], dia).getDate().
+    na função new Date() passamos na seguinte ordem (ano, mes, dia).getDate().
     
-    * sendo assim a expressão (2022, 1) siginifica basicamente fevereiro de 2022 
-      - os meses são um array ["janeiro", "fevereiro", "março", ...]
+    * sendo assim a expressão (2022, 1, 20) siginifica basicamente 20 de fevereiro de 2022 
+      - os meses estão em um array ["janeiro", "fevereiro", "março", ...]
     
     * o terceiro parametro que a função recebe (dia) é o dia do mês q queremos passar
       - passando (2022, 1 , 20) retorna basicamente as informações do dia, como o dia da semana, o mes ...: 

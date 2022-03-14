@@ -2,16 +2,17 @@ import { Box, HStack, Icon, Text } from "@chakra-ui/react";
 import { ReactNode } from "react";
 
 interface SelectSectionButtonProps {
-    name: string;
+    currentName: string;
     value: string;
     icon?: ReactNode;
     onClick: ReactNode;
 }
 
-export default function SelectSectionButton({ name, value, icon, ...rest }: SelectSectionButtonProps) {
+export default function SelectSectionButton({ currentName, value, icon, ...rest }: SelectSectionButtonProps) {
+
     return (
         <Box
-            name={name}
+            name={currentName}
             value={value}
             w="100%"
             px="3"
@@ -25,7 +26,7 @@ export default function SelectSectionButton({ name, value, icon, ...rest }: Sele
                 {!!icon && <Icon as={icon} fontSize="20" />}
 
                 <Text  >
-                    {name} 
+                    {currentName} 
                 </Text>
             </HStack>
         </Box>
